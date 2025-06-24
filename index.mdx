@@ -1,3 +1,133 @@
 ---
-title: "Introduction"
+title: "Overview"
+description: "Building MCP servers is exciting, but once they're live, you're flying blind. Which tools are people actually using? Are they failing silently? How long do they take to run?
+
+MCP Analytics solves this by adding comprehensive tracking to your Cloudflare MCP servers with literally 2 code changes."
 ---
+
+## The Problem
+
+You've built an awesome MCP server with multiple tools. Users are connecting through Claude Desktop, but you have no idea:
+
+- **Which tools are popular** (and which ones nobody uses)
+- **When things break** (users rarely report errors)
+- **Performance bottlenecks** (that 30-second API call killing UX)
+- **User behavior patterns** (do they use tools in sequences?)
+- **Server health** (is it actually working reliably?)
+
+Without this data, you're building features blindly and debugging reactively.
+
+## The Solution
+
+MCP Analytics automatically captures everything happening in your MCP server:
+
+```
+// Before: No visibility
+this.server.tool('generateImage', schema, callback);
+
+// After: Full analytics
+this.analyticsTool('generateImage', 'Generate AI images', schema, callback);
+```
+
+That's it. One import change, one method change. Now you get:
+
+- **Real-time tool usage** - See what's being used when
+- **Performance metrics** - Execution times, success rates, error tracking
+- **User insights** - Who's using what, session patterns
+- **Result analytics** - What outputs your tools are generating
+- **Error monitoring** - Catch issues before users complain
+
+## Why MCP Analytics?
+
+### Built for Cloudflare
+
+This isn't a generic analytics tool bolted onto MCP. It's designed specifically for Cloudflare's MCP Agent architecture:
+
+- **Zero config** - Extracts server info automatically
+- **OAuth integration** - Works with any auth provider out of the box
+- **Durable Objects** - Session tracking via DO context
+- **Edge-optimized** - Batching and async processing
+
+### Privacy-First
+
+Sensitive data is automatically sanitized:
+
+```
+// Input: { username: "john", password: "secret123" }
+// Stored: { username: "john", password: "[REDACTED]" }
+```
+
+Binary data (images, files) gets replaced with metadata. Large results are truncated. You get insights without privacy risks.
+
+### Graceful Degradation
+
+Your tools **always work**, even if analytics fail:
+
+```
+// If our API is down, your tools still work normally
+// If you forget the API key, tools work without tracking
+// If network fails, events queue and retry
+```
+
+No single point of failure. Your MCP server's reliability comes first.
+
+## Who This Is For
+
+### Individual Developers
+
+Building MCP tools for personal use or small teams. You want to understand usage patterns and catch issues early.
+
+### Teams & Startups
+
+Deploying MCP servers for multiple users. You need visibility into what's working and what isn't.
+
+### Enterprise
+
+Running production MCP infrastructure. You require monitoring, error tracking, and performance analytics.
+
+## How It Works
+
+1. **Extend our agent** instead of the base `McpAgent`
+2. **Use **`analyticsTool` instead of `server.tool`
+3. **Deploy normally** - everything else stays the same
+
+Events flow automatically to our analytics pipeline. View insights in the dashboard, export data, or integrate with your existing monitoring.
+
+## What's Tracked
+
+Every tool execution captures:
+
+- **Timing data** - Start time, duration, completion
+- **Parameters** - Input data (sanitized automatically)
+- **Results** - Output data (truncated for large responses)
+- **User context** - From OAuth props (if available)
+- **Session info** - Grouped by Durable Object ID
+- **Success/failure** - With error details when things break
+
+## Architecture
+
+```
+Your MCP Tool → Analytics Wrapper → Original Tool Logic
+                      ↓
+              Analytics Pipeline → Dashboard
+```
+
+The wrapper is transparent. Your tool logic runs exactly as before, with events captured asynchronously.
+
+## Getting Started
+
+Ready to get visibility into your MCP server? The [Quick Start](https://claude.ai/quickstart) guide will have you up and running in 5 minutes.
+
+## Pricing
+
+Free tier includes up to 10K events per month. Perfect for personal projects and small teams. [View pricing details](https://mcpanalytics.dev/pricing).
+
+## Platform Support
+
+- ✅ **Cloudflare Workers** with MCP Agent
+- ✅ **Any OAuth provider** (Google, GitHub, Auth0, etc.)
+- ✅ **Durable Objects** for session tracking
+- ❌ stdio-based MCP servers
+- ❌ Other cloud platforms
+
+This is specifically built for Cloudflare's MCP architecture. If you're running elsewhere, this isn't the right tool for you.
