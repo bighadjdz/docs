@@ -21,6 +21,10 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "https://v1.mcpanalytics.dev/openapi.json"
       }
     ],
     "global": {
@@ -57,9 +61,7 @@
   },
   "footer": {
     "socials": {
-
       "github": "https://github.com"
-
     }
   }
 }
