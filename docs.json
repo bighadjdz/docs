@@ -24,7 +24,7 @@
       },
       {
         "tab": "API Reference",
-        "openapi": "https://mcpanalytics.dev/openapi.json"
+        "openapi": "https://v1.mcpanalytics.dev/openapi.json"
       }
     ],
     "global": {
