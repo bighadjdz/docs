@@ -1,13 +1,11 @@
 ---
 title: "Overview"
-description: "mcp-analytics is a drop-in SDK that adds powerful analytics and Stripe payments to your Cloudflare MCP servers with just two lines of code.
-
-It's a purpose-built wrapper around the standard McpAgent that handles all the heavy lifting of tracking, error monitoring, and monetization, letting you focus on building great tools."
+description: "mcp-analytics is a drop-in SDK that adds powerful analytics and Stripe payments to your Cloudflare MCP servers with just two lines of code. It's a purpose-built wrapper around the standard McpAgent that handles all the heavy lifting of tracking, error monitoring, and monetization, letting you focus on building great tools."
 ---
 
 ### The Problem: Flying Blind
 
-You've built a great MCP agent, but you're operating in a black box. Critical questions are left unanswered:
+You've built a great MCP , but you're operating in a black box. Critical questions are left unanswered:
 
 - **Usage:** Is anyone even using your  tools? Which tools are the most popular?
 - **Performance:** Is your tools getting slower? Are users experiencing lag?
@@ -82,10 +80,10 @@ Once installed, `mcp-analytics` starts tracking essential events without any ext
 `mcp-analytics` comes in two flavors, so you only use what you need.
 
 1. _`AnalyticsMcpAgent (Analytics Only)`_
-   - Use this for agents with only **free tools**.
+   - Use this for MCP with only **free tools**.
    - Provides comprehensive analytics for all tool calls via `this.analyticsTool()`.
 2. _`AnalyticsPaidMcpAgent (Analytics + Payments)`_
-   - The complete solution for agents with **free and paid tools**.
+   - The complete solution for MCP with **free and paid tools**.
    - Use `this.analyticsTool()` for free tools and `this.analyticsPaidTool()` for monetized tools.
 
 ### Platform First
