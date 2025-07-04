@@ -23,6 +23,17 @@
         ]
       },
       {
+        "tab": "FAQ",
+        "groups": [
+          {
+            "group": "Frequently Asked Questions",
+            "pages": [
+              "faq"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "API Reference",
         "openapi": "https://v1.mcpanalytics.dev/openapi.json"
       }

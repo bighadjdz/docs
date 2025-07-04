@@ -1,0 +1,134 @@
+---
+title: "Frequently Asked Questions about Cloudflare's MCP and MCP Analytics"
+description: "Description of your new file."
+---
+
+## What is Cloudflare's Model Context Protocol (MCP)?
+
+The Model Context Protocol (MCP) is an open standard designed to connect AI systems with external applications. Cloudflare enables you to build and deploy MCP servers on its platform.
+
+## What are the key terms in MCP?
+
+• **MCP Hosts:** These are AI assistants (like Claude or Cursor), AI agents, or applications that need to access external capabilities.
+
+ •**MCP Clients:**  These clients are embedded within MCP hosts and are responsible for connecting to MCP servers and invoking tools. Each MCP client instance maintains a single connection to an MCP server. 
+
+• **MCP Servers**: These are applications that expose tools, prompts, and resources that MCP clients can utilize. • Tools: These are functions provided by an MCP Server that MCP clients can call.
+
+## What are the different modes of MCP connections?
+
+The MCP standard supports two primary modes of operation: 
+
+• Remote MCP connections: In this mode, MCP clients connect to MCP servers over the Internet using a long-lived connection, typically HTTP and Server-Sent Events (SSE). Authorization for resource access on the user's account is handled using OAuth. 
+
+• Local MCP connections: This mode involves MCP clients connecting to MCP servers on the same machine, using stdio (standard in and standard out) as the local transport method.
+
+## How do I deploy a remote MCP server on Cloudflare?
+
+You can deploy your first remote MCP server on Cloudflare with two options: without authentication (anyone can connect) or with authentication and authorization (users sign in before accessing tools, and tool access can be controlled by permissions). You can use a "Deploy to Cloudflare" button which sets up a Git repository for automatic deployment, or you can use command-line tools like npm create cloudflare to set up a new project. Once deployed, the server is live at your workers.dev subdomain and can be connected to by various MCP clients like the [Mcpsplayground](https://mcpsplayground.com/chat) or MCP Inspector.
+
+## How does authorization work for MCP servers on Cloudflare?
+
+When building an MCP server, you need both authentication (user login) and authorization (granting client access to resources). The Model Context Protocol uses a subset of OAuth 2.1 for authorization, allowing users to grant limited access without sharing API keys or credentials. Cloudflare provides an OAuth Provider Library that implements the provider side of OAuth 2.1, simplifying authorization for your MCP server.
+
+## What are the authorization options for an MCP server?
+
+You can use the OAuth Provider Library in three ways:
+
+1. Your Worker handles authorization itself: Your MCP server, running on Cloudflare, manages the complete OAuth flow. It can handle authorization while relying on an external authentication service or implementing its own mock authentication flow.
+2. Integrate directly with a third-party OAuth provider: Examples include **GitHub** or **Google**. Your OAuthProvider configuration would use a specific handler for the third-party provider. The MCP Server will generate and issue its own token to the MCP client after exchanging codes with the third-party provider.
+3. Integrate with your own OAuth provider: This includes authorization-as-a-service providers like **Stytch**, **Auth0**, or **WorkOS**. These can handle various authentication methods (email, social logins, SSO, MFA), define scopes/permissions for MCP tools, present consent pages, and enforce permissions.
+
+## How can I implement permission-based access for MCP tools?
+
+The McpAgent class provides access to the authenticated user's identity and tokens via the **props parameter**. This allows you to implement fine-grained authorization controls for your MCP tools based on user permissions. You can create wrapper functions to check for required permissions before executing a tool's handler. This ensures proper access control, allows for reusable permission checks, provides clear feedback for denied permissions, and can conditionally present tools based on user permissions.
+
+## What is the class?
+
+When building MCP Servers on Cloudflare, you extend the McpAgent class from the Agents SDK. This class provides several key features: 
+
+**• Durable State:** Each instance of your MCP server has its own durable state, backed by a Durable Object, including its own SQL database. This allows the server to remember previous tool calls, game states, or cached API responses.
+
+ **• Hibernation Support:** McpAgent instances automatically support WebSockets Hibernation, which allows stateful MCP servers to sleep when inactive, preserving their state and optimizing costs by only consuming compute resources when processing requests. 
+
+**• Authentication & Authorization Integration:** It offers seamless integration with the OAuth Provider Library, making user identity and tokens available through the props parameter for access control, data customization, and external service requests. 
+
+• **State Synchronization APIs**: Provides methods like state, initialState, setState, onStateUpdate, and sql for managing and reacting to changes in the server's state. Note that state resets after each client session.
+
+## What transport methods does MCP support?
+
+The MCP specification defines three standard transport mechanisms:
+
+1. **stdio:** For local MCP connections.
+2. **Server-Sent Events (SSE):** Currently supported by most remote MCP clients; uses two endpoints (one for requests, one for streamed responses).
+3. **Streamable HTTP:** A newer method (introduced March 2025) that simplifies communication with a single HTTP endpoint for bidirectional messaging; expected to become the future standard.
+
+MCP servers built with the Agents SDK can automatically support both remote transport methods (SSE and Streamable HTTP), with the McpAgent class handling the configuration.
+
+## What is  Mcp-analytics ?
+
+mcp-analytics is an SDK designed for Cloudflare MCP Agents that allows you to add powerful analytics tracking and Stripe payments to your Cloudflare MCP servers with minimal code changes. It tracks **tool usage**, **user behavior**, **performance metrics**, **results**, **errors,** and **processes payments**.
+
+## What are the core features of ?
+
+It offers two main agent types: 
+
+• **AnalyticsMcpAgent:** For servers with free tools only, providing analytics tracking. 
+
+• **AnalyticsPaidMcpAgent**: For servers with free and paid tools, providing both analytics and payment processing capabilities.
+
+## What data does automatically track?
+
+For all tools (free and paid), it tracks:
+
+ • Tool execution time 
+
+• Success/failure status 
+
+• Input parameters (sensitive data auto-redacted) 
+
+• Tool results (automatically sanitized) 
+
+• Error details 
+
+• User information (automatic user identification from OAuth props)
+
+• Session tracking 
+
+• Server metadata (name and version)
+
+For paid tools, it additionally tracks:
+
+ • Payment events (e.g., payment required, completed, failed) 
+
+• Payment amounts and currency 
+
+• Customer data (Stripe customer IDs, payment sessions)
+
+ • Payment types (one-time, subscription, usage-based billing) 
+
+• Revenue tracking • Subscription status
+
+## How does integrate with payments?
+
+The**AnalyticsPaidMcpAgent**  provides seamless Stripe integration. When defining a paid tool using analyticsPaidTool(), you provide checkout options (including success_url, line_items, and mode) and a paymentReason. It supports usage-based billing and one-time payments.
+
+## How does handle user tracking with OAuth?
+
+The SDK automatically extracts user information from the **this.props** parameter, which is available through Cloudflare's OAuth Provider Library. It can detect userId, email, username, and authProvider from props such as sub, email, userEmail, and name. It is designed to work with various OAuth providers like **Google**, **Logto**, **Auth0,** **GitHub**, and **custom OAuth implementations**.
+
+## What about data privacy and security with ?
+
+**mcp-analytics** implements automatic **data sanitization** to redact sensitive parameters and results. Field names like password, token, secret, apikey, creditcard, and related variations are automatically protected and redacted in tracked data. You also have the option to **disable result tracking** for specific sensitive tools to enhance privacy.
+
+## What are the platform requirements for ?
+
+The mcp-analytics SDK is specifically designed for Cloudflare MCP Agents. It requires: 
+
+• Cloudflare Workers: For deployment on Cloudflare's edge platform. 
+
+• Cloudflare MCP Agent: Extends the McpAgent class from agents/mcp.
+
+ • Durable Objects: For automatic session management and state persistence.
+
+• OAuth Provider Library: For built-in authentication with @cloudflare/workers-oauth-provider. It is not compatible with local MCP servers (stdio-based), other cloud platforms (AWS, GCP, Azure), or standard MCP SDKs without Cloudflare extensions.
